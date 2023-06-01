@@ -5,7 +5,7 @@ if (idsToTermsInput != null && idsToTermsInput.value != null && idsToTermsInput.
   for (const [id, term] of Object.entries(idsToTerms)) {
     let inputElement = document.querySelector('input[data-id="' + id + '"]');
     if (inputElement)
-    inputElement.value = term;
+      inputElement.value = term;
   }
 }
 
@@ -29,7 +29,7 @@ if (form) {
     let feed_url = document.getElementsByName('one_wp_feed_rss_monitor_feed_url')[0].value;
     let default_category_id = document.querySelector('input[name="one_wp_feed_rss_monitor_default_cat"]:checked').value;
 
-    // fetch
+    // settings save fetch
     let formData = new FormData();
     formData.append('action', 'one_wp_feed_rss_monitor_save');
     formData.append('feed_url', feed_url);
@@ -45,7 +45,29 @@ if (form) {
     })
     .then((text) => {
       if (text != null && text != '')
-        document.getElementById('one_wp_feed_rss_monitor_response_label').innerHTML = text;
+        alert(text);
+    });
+  });
+}
+
+var jobBtn = document.getElementById('one_wp_feed_rss_monitor_job_btn');
+if (jobBtn) {
+  jobBtn.addEventListener('click', function() {
+    document.getElementById('one_wp_feed_rss_monitor_job_response').innerHTML = 'Loading...';
+    // job run fetch
+    let formData = new FormData();
+    formData.append('action', 'one_wp_feed_rss_monitor_update_posts_episodes');
+
+    fetch(ajaxurl, {
+      method: 'POST',
+      body: formData
+    })
+    .then(function(response) {
+      return response.text();
+    })
+    .then((text) => {
+      if (text != null && text != '')
+        document.getElementById('one_wp_feed_rss_monitor_job_response').innerHTML = text;
     });
   });
 }

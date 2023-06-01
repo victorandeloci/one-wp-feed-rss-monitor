@@ -1,5 +1,5 @@
 <div class="wrap">
-  <h1>Feed RSS Monitor</h1>
+  <h2>Settings</h2>
   <form method="post" action="" id="one_wp_feed_rss_monitor_form">
     <table class="form-table">
       <tr>
@@ -62,7 +62,6 @@
       id="one_wp_feed_rss_monitor_ids_to_terms"
       value='<?= $options['ids_to_terms'] ?>'
     />
-    <p id="one_wp_feed_rss_monitor_response_label"></p>
     <p class="submit">
       <input type="submit" name="one_wp_feed_rss_monitor_submit" class="button-primary" value="Save Settings" />
     </p>
