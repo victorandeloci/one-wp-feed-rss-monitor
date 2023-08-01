@@ -43,7 +43,9 @@ if ( !function_exists('one_wp_feed_rss_monitor_page') ) {
       'ids_to_terms' => get_option('one_wp_feed_rss_monitor_ids_to_terms', ''),
     ];
 
-    $categories = get_categories();
+    $categories = get_categories([
+      'hide_empty' => false
+    ]);
 
     // cron job exec
     include_once('templates/cron_exec.php');
@@ -123,7 +125,7 @@ function one_wp_feed_rss_monitor_get_podcast_episodes($feed_url) {
         $tags_str = substr($description, $tags_start, $tags_end - $tags_start);
         $tags = explode(' ', $tags_str);
         foreach ($tags as $tag) {
-          $episode['tags'][] = str_replace('#', '', $tag);
+          $episode['tags'][] = str_replace('ç', 'c', str_replace('ã', 'a', str_replace('#', '', $tag)));
         }
       }
 
