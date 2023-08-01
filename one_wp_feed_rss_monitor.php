@@ -125,7 +125,7 @@ function one_wp_feed_rss_monitor_get_podcast_episodes($feed_url) {
         $tags_str = substr($description, $tags_start, $tags_end - $tags_start);
         $tags = explode(' ', $tags_str);
         foreach ($tags as $tag) {
-          $episode['tags'][] = str_replace('#', '', $tag);
+          $episode['tags'][] = str_replace('ç', 'c', str_replace('ã', 'a', str_replace('#', '', $tag)));
         }
       }
 
