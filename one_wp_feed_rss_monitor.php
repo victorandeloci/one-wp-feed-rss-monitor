@@ -3,7 +3,7 @@
 /*
   * Plugin Name: One WP Feed RSS Monitor
   * Description: Monitor and auto-publish podcast episodes as wordpress posts
-  * Version: 1.0.1
+  * Version: 1.0.2
   * Author: Victor Andeloci
   * Author URI: https://github.com/victorandeloci
 */
@@ -33,7 +33,7 @@ if ( !function_exists('one_wp_feed_rss_monitor_page') ) {
       'one_wp_feed_rss_monitor_main_js',
       plugin_dir_url(__FILE__) . 'js/main.js',
       [],
-      '1.0.0',
+      '1.0.2',
       true
     );
 
@@ -43,7 +43,9 @@ if ( !function_exists('one_wp_feed_rss_monitor_page') ) {
       'ids_to_terms' => get_option('one_wp_feed_rss_monitor_ids_to_terms', ''),
     ];
 
-    $categories = get_categories();
+    $categories = get_categories([
+      'hide_empty' => false
+    ]);
 
     // cron job exec
     include_once('templates/cron_exec.php');
