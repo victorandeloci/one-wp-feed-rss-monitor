@@ -3,7 +3,7 @@
 /*
   * Plugin Name: One WP Feed RSS Monitor
   * Description: Monitor and auto-publish podcast episodes as wordpress posts
-  * Version: 1.0.2
+  * Version: 1.1.0
   * Author: Victor Andeloci
   * Author URI: https://github.com/victorandeloci
 */
@@ -33,12 +33,12 @@ if ( !function_exists('one_wp_feed_rss_monitor_page') ) {
       'one_wp_feed_rss_monitor_main_js',
       plugin_dir_url(__FILE__) . 'js/main.js',
       [],
-      '1.0.2',
+      '1.1.0',
       true
     );
 
     $options = [
-      'feed_url' => get_option('one_wp_feed_rss_monitor_feed_url', ''),
+      'feed_url_list' => get_option('one_wp_feed_rss_monitor_feed_url_list', ''),
       'default_category_id' => get_option('one_wp_feed_rss_monitor_default_cat', ''),
       'ids_to_terms' => get_option('one_wp_feed_rss_monitor_ids_to_terms', ''),
     ];
@@ -56,7 +56,7 @@ if ( !function_exists('one_wp_feed_rss_monitor_page') ) {
 
 function one_wp_feed_rss_monitor_save() {
   try {
-    update_option('one_wp_feed_rss_monitor_feed_url', sanitize_text_field($_POST['feed_url']));
+    update_option('one_wp_feed_rss_monitor_feed_url_list', stripslashes($_POST['feed_url_list']));
     update_option('one_wp_feed_rss_monitor_default_cat', sanitize_text_field($_POST['default_category_id']));
     update_option('one_wp_feed_rss_monitor_ids_to_terms', stripslashes($_POST['ids_to_terms']));
 
@@ -93,17 +93,25 @@ function one_wp_feed_rss_monitor_get_podcast_episodes($feed_url) {
   foreach ($rss->channel->item as $item) {
     $episode = [];
     $episode['default_title'] = (string) $item->title;
-    $episode['title'] = (string) str_replace('”', '"', 
-                          str_replace('“', '"', 
-                            str_replace('‘', "'", 
-                              str_replace('…', '...', 
-                                str_replace('’', "'", 
-                                  str_replace('–', '-', 
-                                    trim($item->title)))))));
+
+    // title tricky chars removal
+    $unwanted = [
+      '”' => '"',
+      '“' => '"',
+      '‘' => "'",
+      '…' => '...',
+      '’' => "'",
+      '–' => '-'
+    ];
+    $episode['title'] = strtr( $item->title, $unwanted );
+
     $episode['description'] = (string) $item->description;
     $episode['link'] = (string) $item->link;
     $episode['mp3_url'] = (string) one_wp_feed_rss_monitor_xml_attribute($item->enclosure, 'url');
     $episode['duration'] = (string) $item->children('itunes', true)->duration;
+    $episode['season'] = (string) $item->children('itunes', true)->season;
+    $episode['number'] = (string) $item->children('itunes', true)->episode;
+    $episode['type'] = (string) $item->children('itunes', true)->episodeType;
     $episode['image_url'] = (string) $item->children('itunes', true)->image->attributes()->href;
     $episode['pub_date'] = (string) $item->pubDate;
     $episode['tags'] = [];
@@ -125,7 +133,7 @@ function one_wp_feed_rss_monitor_get_podcast_episodes($feed_url) {
         $tags_str = substr($description, $tags_start, $tags_end - $tags_start);
         $tags = explode(' ', $tags_str);
         foreach ($tags as $tag) {
-          $episode['tags'][] = str_replace('ç', 'c', str_replace('ã', 'a', str_replace('#', '', $tag)));
+          $episode['tags'][] = iconv('UTF-8', 'ASCII//TRANSLIT', str_replace('#', '', $tag));
         }
       }
 
@@ -143,12 +151,15 @@ function one_wp_feed_rss_monitor_create_podcast_post($episode) {
       'post_content' => $episode['description'],
       'post_status' => 'publish',
       'post_type' => 'post',
-      'post_date' => date('Y-m-d', strtotime($episode['pub_date'])),
+      'post_date' => date('Y-m-d H:i:s', strtotime($episode['pub_date'])),
       'post_author' => (get_current_user_id() ?? 1),
       'meta_input' => array(
         'episode_link' => $episode['link'],
         'episode_mp3_url' => $episode['mp3_url'],
         'episode_duration' => $episode['duration'],
+        'episode_season' => $episode['season'],
+        'episode_number' => $episode['number'],
+        'episode_type' => $episode['type'],
         'episode_cover' => $episode['image_url']
       )
     );
@@ -201,20 +212,22 @@ function one_wp_feed_rss_monitor_create_podcast_post($episode) {
 }
 
 function one_wp_feed_rss_monitor_update_posts_episodes() {
-  $feed_url = get_option('one_wp_feed_rss_monitor_feed_url', '');
-  if (!empty($feed_url)) {
-    // get feed RSS eps
-    $episodes = one_wp_feed_rss_monitor_get_podcast_episodes($feed_url);
-    if (!empty($episodes)) {
-      // create posts foreach ep
-      $podcastPostCount = 0;
-      foreach ($episodes as $episode) {
-        if (one_wp_feed_rss_monitor_create_podcast_post($episode))
-          $podcastPostCount++;
+  $feed_url_list = get_option('one_wp_feed_rss_monitor_feed_url_list', '');
+  if (!empty($feed_url_list)) {
+    foreach (json_decode($feed_url_list) as $i => $feed_url) {
+      // get feed RSS eps
+      $episodes = one_wp_feed_rss_monitor_get_podcast_episodes($feed_url);
+      if (!empty($episodes)) {
+        // create posts foreach ep
+        $podcastPostCount = 0;
+        foreach ($episodes as $episode) {
+          if (one_wp_feed_rss_monitor_create_podcast_post($episode))
+            $podcastPostCount++;
+        }
+        echo $podcastPostCount . ' post(s) created!';
+      } else {
+        echo 'Could not find new episodes on feed ' . ($i + 1) . '...<br>';
       }
-      echo $podcastPostCount . ' post(s) created!';
-    } else {
-      echo 'Could not find new episodes...';
     }
   } else {
     echo 'Feed RSS URL not defined!';
