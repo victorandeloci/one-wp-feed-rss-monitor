@@ -3,7 +3,7 @@
 /*
   * Plugin Name: One WP Feed RSS Monitor
   * Description: Monitor and auto-publish podcast episodes as wordpress posts
-  * Version: 1.0.2
+  * Version: 1.1.0
   * Author: Victor Andeloci
   * Author URI: https://github.com/victorandeloci
 */
@@ -33,7 +33,7 @@ if ( !function_exists('one_wp_feed_rss_monitor_page') ) {
       'one_wp_feed_rss_monitor_main_js',
       plugin_dir_url(__FILE__) . 'js/main.js',
       [],
-      '1.0.2',
+      '1.1.0',
       true
     );
 
