@@ -3,15 +3,24 @@
   <form method="post" action="" id="one_wp_feed_rss_monitor_form">
     <table class="form-table">
       <tr>
-        <th scope="row"><label for="one_wp_feed_rss_monitor_feed_url">Feed RSS URL:</label></th>
+        <th scope="row"><label for="one_wp_feed_rss_monitor_feed_url">Feed RSS URLs:</label></th>
+        <td id="one_wp_feed_rss_monitor_feeds_container">
+          <?php if (!empty(esc_attr($options['feed_url_list']))) : ?>
+            <?php
+              $feedUrlList = json_decode($options['feed_url_list']);
+              foreach ($feedUrlList as $feedUrl) :
+            ?>
+              <input 
+                type="text"
+                name="one_wp_feed_rss_monitor_feed_url" 
+                value="<?= $feedUrl ?>" 
+                class="regular-text" 
+              />
+            <?php endforeach; ?>
+          <?php endif; ?>
+        </td>
         <td>
-          <input 
-            type="text" 
-            id="one_wp_feed_rss_monitor_feed_url" 
-            name="one_wp_feed_rss_monitor_feed_url" 
-            value="<?= esc_attr($options['feed_url']) ?>" 
-            class="regular-text" 
-          />
+          <button class="button-secondary" id="one_wp_feed_rss_monitor_add_btn">Add feed</button>
         </td>
       </tr>
       <tr>
