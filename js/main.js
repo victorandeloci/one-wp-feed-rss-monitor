@@ -26,11 +26,17 @@ if (form) {
   form.addEventListener('submit', function(e) {
     e.preventDefault();
 
+    if (document.querySelector('select[name="one_wp_feed_rss_monitor_default_cat"]').value == '') {
+      alert('Select a default category!');
+      return;
+    }
+
     let feed_url_list = [];
     document.getElementsByName('one_wp_feed_rss_monitor_feed_url').forEach(input => {
       feed_url_list.push(input.value);
     });
-    let default_category_id = document.querySelector('input[name="one_wp_feed_rss_monitor_default_cat"]:checked').value;
+
+    let default_category_id = document.querySelector('select[name="one_wp_feed_rss_monitor_default_cat"]').value;
 
     // settings save fetch
     let formData = new FormData();
@@ -61,6 +67,7 @@ if (jobBtn) {
     let formData = new FormData();
     formData.append('action', 'one_wp_feed_rss_monitor_update_posts_episodes');
 
+    document.body.style.cursor = 'wait';
     fetch(ajaxurl, {
       method: 'POST',
       body: formData
@@ -72,6 +79,8 @@ if (jobBtn) {
       if (text != null && text != '')
         document.getElementById('one_wp_feed_rss_monitor_job_response').innerHTML = text;
     });
+
+    document.body.style.cursor = 'default';
   });
 }
 
@@ -84,6 +93,7 @@ if (addFeedBtn) {
     input.setAttribute('type', 'text');
     input.setAttribute('name', 'one_wp_feed_rss_monitor_feed_url');
     input.classList.add('regular-text');
+    input.style.marginTop = '.5rem';
 
     let container = document.getElementById('one_wp_feed_rss_monitor_feeds_container');
     container.appendChild(input);

@@ -19,44 +19,56 @@
             <?php endforeach; ?>
           <?php endif; ?>
         </td>
-        <td>
-          <button class="button-secondary" id="one_wp_feed_rss_monitor_add_btn">Add feed</button>
-        </td>
       </tr>
       <tr>
-        <td colspan="3">Assign specific terms <strong>(found in episodes titles)</strong> to post categories during auto-publish</td>
+        <td></td>
+        <td colspan="2">
+          <button class="button-secondary" id="one_wp_feed_rss_monitor_add_btn">Add feed</button>
+        </td>
       </tr>
       <?php
         if (!empty($categories)) :
           $defaultCategoryId = esc_attr($options['default_category_id']);
       ?>
           <tr>
+            <td colspan="3"><strong>Default category</strong> (all episodes will be assigned to this category during auto-publish)</td>
+          </tr>
+          <tr>
+            <td>Select default category:</td>
+            <td colspan="2">
+              <select name="one_wp_feed_rss_monitor_default_cat" id="one_wp_feed_rss_monitor_default_cat">
+                <option value="">Categories</option>
+                <?php foreach ($categories as $cat) : ?>
+                  <option 
+                    value="<?= $cat->term_id ?>" 
+                    <?= (($defaultCategoryId == $cat->term_id) ? 'selected' : '') ?>
+                  >
+                    <?= $cat->name ?>
+                  </option>
+                <?php endforeach; ?>
+              </select>
+            </td>
+          </tr>
+          <tr>
+            <td colspan="3">Assign specific terms <strong>(found in episodes titles)</strong> to post categories during auto-publish.</td>
+          </tr>
+          <tr>
             <th>Category</th>
-            <th>Term</th>
-            <th>Default category?</th>
+            <th colspan="2">Term</th>
           </tr>
       <?php
           foreach ($categories as $cat) :
       ?>
             <tr>
-              <th><?= $cat->name ?></th>
-              <td>
+              <td><?= $cat->name ?></td>
+              <td colspan="2">
                 <input 
                   placeholder="Leave blank to avoid this category" 
-                  class="term" 
+                  class="term regular-text" 
                   type="text" 
                   name="one_wp_feed_rss_monitor_<?= $cat->slug ?>_term" 
                   id="one_wp_feed_rss_monitor_<?= $cat->slug ?>_term"
                   data-id="<?= $cat->term_id ?>"
-                />
-              </td>
-              <td>
-                <input
-                  type="radio"
-                  value="<?= $cat->term_id ?>"
-                  name="one_wp_feed_rss_monitor_default_cat"
-                  id="one_wp_feed_rss_monitor_default_cat_<?= $cat->slug ?>"
-                  <?= ($defaultCategoryId == $cat->term_id) ? 'checked' : '' ?>
                 />
               </td>
             </tr>
